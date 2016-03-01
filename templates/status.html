@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="container-fluid">
+  <h1>Status Page for {{ box_name }}@{{ int_ip }}</h1>
+  <table class="table">
+    <tr>
+      <th>Time and Date</dt>
+        <td>{{ now }}</dd>
+    </tr>
+    <tr>
+      <th>System</dt>
+        <td>{{ system }}</dd>
+    </tr>
+    <tr>
+      <th>Release</dt>
+        <td>{{ release }}</dd>
+    </tr>
+    <tr>
+      <th>External IP</dt>
+        <td>{{ ext_ip }}</dd>
+    </tr>
+    <tr>
+      <th>Country</dt>
+        <td>{{ country }}</dd>
+    </tr>
+  </table>
+  <h2>Processes ({{ processes|length }})</h2>
+  <table class="table">
+    <tr>
+      {% for field in processes[0]._fields %}
+      <th>{{ field|replace('_', ' ')|title }}</th>
+      {% endfor %}
+    </tr>
+    {% for line in processes %}
+    <tr>
+      {% for field in line %}
+      <td>{{ field }}</td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}
