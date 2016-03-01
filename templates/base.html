@@ -1,3 +1,9 @@
+{% set navigation_bar = [
+    ('/', 'home', 'Home'),
+    ('/processes', 'processes', 'Processes'),
+    ] 
+%}
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -23,12 +29,31 @@
   </head>
   <body>
     {% block body %}
-    <h1>Hello, world!</h1>
-    {% endblock %}
+{% set active_page = active_page|default('index') %}
 
+<div class="container">
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="/">Status Page</a>
+      </div>
+      <ul class="nav navbar-nav navbar-right">
+        {% for href, id, caption in navigation_bar %}
+        <li{% if id == active_page %} class="active"{% endif %}>
+          <a href="{{ href|e }}">{{ caption|e }}</a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </nav>
+  {% block content %}
+  <h1>Hello World!</h1>
+  {% endblock %}
+</div>
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="/static/js/bootstrap.min.js"></script>
+    {% endblock %}
   </body>
 </html>

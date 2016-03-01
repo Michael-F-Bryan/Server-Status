@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% set active_page = "processes" %}
+
+{% block content %}
+<div class="text-center">
+  <h1>Non-Root Processes ({{ processes|length }})</h1>
+</div>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        {% for field in processes[0]._fields %}
+        <th>{{ field|replace('_', ' ')|title }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for line in processes %}
+      <tr>
+        {% for field in line %}
+        <td>{{ field }}</td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
