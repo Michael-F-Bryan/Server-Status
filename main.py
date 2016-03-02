@@ -112,7 +112,7 @@ def parse_processes():
                 command=cmd,
                 number_of_threads=process.num_threads(),
                 percent_cpu=process.cpu_percent(),
-                percent_memory=round(100*process.memory_percent(),2),
+                percent_memory=str(round(process.memory_percent(), 2))+'%',
                 start=create_time,
                 name=process.name(),
         )
