@@ -15,14 +15,14 @@ app = Flask(__name__)
 
 
 class Cacher:
-    def __init__(self, delay=60, resolution=1):
+    def __init__(self, delay=60, resolution=0.25):
         self.delay = delay
         self.resolution = resolution
         self.active = False
         self.thread = None
 
     def start(self):
-        app.log.info('Cacher started')
+        app.logger.info('Cacher started')
 
         self.active = True
         self.thread = Thread(target=self._run)
@@ -34,11 +34,12 @@ class Cacher:
         while self.active:
             if time.time() - self.last_run > self.delay:
                 self.get_ip()
+                self.last_run = time.time()
             else:
                 time.sleep(1)
 
     def stop(self):
-        app.log.info('Cacher stopped')
+        app.logger.info('Cacher stopped')
 
         self.active = False
 
@@ -46,7 +47,7 @@ class Cacher:
             self.thread.join()
 
     def get_ip(self):
-        app.log.info('Getting IP addresses')
+        app.logger.info('Getting IP addresses')
 
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(("gmail.com",80))
@@ -72,10 +73,10 @@ def humansize(nbytes):
 
 
 def get_uptime():
-    pretty_ut = subprocess.run(['uptime', '-p'], 
-            stdout=subprocess.PIPE).stdout.decode('utf-8')
-    loads = subprocess.run(['uptime'], 
-            stdout=subprocess.PIPE).stdout.decode('utf-8').split()[-3:]
+    pretty_ut = subprocess.Popen(['uptime', '-p'], 
+            stdout=subprocess.PIPE, shell=True).stdout.read().decode('utf-8')
+    loads = subprocess.Popen(['uptime'], 
+            stdout=subprocess.PIPE, shell=True).stdout.read().decode('utf-8').split()[-3:]
     loads = ' '.join(loads)
     return pretty_ut, loads
 
