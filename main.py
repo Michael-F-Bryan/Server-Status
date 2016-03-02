@@ -15,7 +15,7 @@ app = Flask(__name__)
 
 
 class Cacher:
-    def __init__(self, delay=60, resolution=0.25):
+    def __init__(self, delay=5*60, resolution=0.25):
         self.delay = delay
         self.resolution = resolution
         self.active = False
@@ -181,7 +181,7 @@ def get_processes():
 
 # This is a bit of a hack to make the ip address be cached and only updated
 # every minute, but deal with it
-cache = Cacher(delay=60)
+cache = Cacher()
 
 if __name__ == "__main__":
     app.debug = True
