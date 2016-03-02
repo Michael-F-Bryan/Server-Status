@@ -5,11 +5,59 @@ import platform
 from urllib.request import urlopen
 import socket
 from collections import namedtuple
+from threading import Thread
+import time
 
 from flask import Flask, render_template, request, make_response
 import psutil
 
 app = Flask(__name__)
+
+
+class Cacher:
+    def __init__(self, delay=60, resolution=1):
+        self.delay = delay
+        self.resolution = resolution
+        self.active = False
+        self.thread = None
+
+    def start(self):
+        app.log.info('Cacher started')
+
+        self.active = True
+        self.thread = Thread(target=self._run)
+        self.thread.start()
+
+    def _run(self):
+        self.last_run = 0
+
+        while self.active:
+            if time.time() - self.last_run > self.delay:
+                self.get_ip()
+            else:
+                time.sleep(1)
+
+    def stop(self):
+        app.log.info('Cacher stopped')
+
+        self.active = False
+
+        if self.thread:
+            self.thread.join()
+
+    def get_ip(self):
+        app.log.info('Getting IP addresses')
+
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("gmail.com",80))
+        self.int_ip = s.getsockname()[0]
+        s.close()
+
+        ip_data = urlopen('http://www.trackip.net/ip?json').read().decode('utf-8')
+        ip_data = json.loads(ip_data)
+        self.ext_ip = ip_data['ip']
+        self.country = ip_data['country']
+
 
 
 suffixes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
@@ -30,19 +78,6 @@ def get_uptime():
             stdout=subprocess.PIPE).stdout.decode('utf-8').split()[-3:]
     loads = ' '.join(loads)
     return pretty_ut, loads
-
-def get_ip():
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(("gmail.com",80))
-    int_ip = s.getsockname()[0]
-    s.close()
-
-    ip_data = urlopen('http://www.trackip.net/ip?json').read().decode('utf-8')
-    ip_data = json.loads(ip_data)
-    ext_ip = ip_data['ip']
-    country = ip_data['country']
-
-    return int_ip, ext_ip, country
 
 
 def parse_processes():
@@ -93,7 +128,7 @@ def root():
     box_name = platform.node()
     release = platform.release()
     system = platform.system()
-    int_ip, ext_ip, country =  get_ip()
+    # int_ip, ext_ip, country =  get_ip()
     now = datetime.datetime.now()
     date = now.strftime('%A %B %e, %Y')
     time = now.strftime('%l:%M:%S %p')
@@ -116,9 +151,9 @@ def root():
         box_name=box_name,
         release=release,
         system=system,
-        int_ip=int_ip,
-        ext_ip=ext_ip,
-        country=country,
+        int_ip=cache.int_ip,
+        ext_ip=cache.ext_ip,
+        country=cache.country,
         date=date,
         time=time,
         percent_virtual_memory=pc_virtual_memory,
@@ -142,6 +177,14 @@ def get_processes():
 
     return response
 
+
+# This is a bit of a hack to make the ip address be cached and only updated
+# every minute, but deal with it
+cache = Cacher(delay=60)
+
 if __name__ == "__main__":
     app.debug = True
+    cache.start()
+
     app.run(host='0.0.0.0', port=8000)
+    cache.stop()
