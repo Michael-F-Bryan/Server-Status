@@ -8,7 +8,7 @@ setup(name='status',
       packages=find_packages(exclude=['docs', 'scripts']),
       install_requires=[
           'flask',
-          'psutils',
+          'psutil',
       ],
       license='MIT',
      )
