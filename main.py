@@ -7,11 +7,60 @@ import platform
 from urllib.request import urlopen
 import socket
 from collections import namedtuple
+from threading import Thread
+import time
 
 from flask import Flask, render_template, request, make_response
 import psutil
 
 app = Flask(__name__)
+
+
+class Cacher:
+    def __init__(self, delay=5*60, resolution=0.25):
+        self.delay = delay
+        self.resolution = resolution
+        self.active = False
+        self.thread = None
+
+    def start(self):
+        app.logger.info('Cacher started')
+
+        self.active = True
+        self.thread = Thread(target=self._run)
+        self.thread.start()
+
+    def _run(self):
+        self.last_run = 0
+
+        while self.active:
+            if time.time() - self.last_run > self.delay:
+                self.get_ip()
+                self.last_run = time.time()
+            else:
+                time.sleep(1)
+
+    def stop(self):
+        app.logger.info('Cacher stopped')
+
+        self.active = False
+
+        if self.thread:
+            self.thread.join()
+
+    def get_ip(self):
+        app.logger.info('Getting IP addresses')
+
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("gmail.com",80))
+        self.int_ip = s.getsockname()[0]
+        s.close()
+
+        ip_data = urlopen('http://www.trackip.net/ip?json').read().decode('utf-8')
+        ip_data = json.loads(ip_data)
+        self.ext_ip = ip_data['ip']
+        self.country = ip_data['country']
+
 
 
 suffixes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
@@ -26,25 +75,12 @@ def humansize(nbytes):
 
 
 def get_uptime():
-    pretty_ut = subprocess.run(['uptime', '-p'], 
-            stdout=subprocess.PIPE).stdout.decode('utf-8')
-    loads = subprocess.run(['uptime'], 
-            stdout=subprocess.PIPE).stdout.decode('utf-8').split()[-3:]
+    pretty_ut = subprocess.Popen(['uptime', '-p'], 
+            stdout=subprocess.PIPE, shell=True).stdout.read().decode('utf-8')
+    loads = subprocess.Popen(['uptime'], 
+            stdout=subprocess.PIPE, shell=True).stdout.read().decode('utf-8').split()[-3:]
     loads = ' '.join(loads)
     return pretty_ut, loads
-
-def get_ip():
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(("gmail.com",80))
-    int_ip = s.getsockname()[0]
-    s.close()
-
-    ip_data = urlopen('http://www.trackip.net/ip?json').read().decode('utf-8')
-    ip_data = json.loads(ip_data)
-    ext_ip = ip_data['ip']
-    country = ip_data['country']
-
-    return int_ip, ext_ip, country
 
 
 def parse_processes():
@@ -78,7 +114,7 @@ def parse_processes():
                 command=cmd,
                 number_of_threads=process.num_threads(),
                 percent_cpu=process.cpu_percent(),
-                percent_memory=round(100*process.memory_percent(),2),
+                percent_memory=str(round(process.memory_percent(), 2))+'%',
                 start=create_time,
                 name=process.name(),
         )
@@ -95,7 +131,7 @@ def root():
     box_name = platform.node()
     release = platform.release()
     system = platform.system()
-    int_ip, ext_ip, country =  get_ip()
+    # int_ip, ext_ip, country =  get_ip()
     now = datetime.datetime.now()
     date = now.strftime('%A %B %e, %Y')
     time = now.strftime('%l:%M:%S %p')
@@ -118,9 +154,9 @@ def root():
         box_name=box_name,
         release=release,
         system=system,
-        int_ip=int_ip,
-        ext_ip=ext_ip,
-        country=country,
+        int_ip=cache.int_ip,
+        ext_ip=cache.ext_ip,
+        country=cache.country,
         date=date,
         time=time,
         percent_virtual_memory=pc_virtual_memory,
@@ -158,7 +194,13 @@ def main(argv):
     if args.debug:
         app.debug = True
 
+    global cache
+    cache = Cacher()
+
+    cache.start()
     app.run(host='0.0.0.0', port=port)
+    cache.stop()
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])
