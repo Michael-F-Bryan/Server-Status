@@ -1,4 +1,6 @@
+import sys
 import json
+import argparse
 import subprocess
 import datetime
 import platform
@@ -142,6 +144,21 @@ def get_processes():
 
     return response
 
+
+def main(argv):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-p', '--port', dest='port', default=8000,
+            help='The port to serve the website on')
+    parser.add_argument('-d', '--debug', dest='debug', action='store_true',
+            help='Start the website in debug mode')
+    args = parser.parse_args(argv)
+
+    port = args.port
+
+    if args.debug:
+        app.debug = True
+
+    app.run(host='0.0.0.0', port=port)
+
 if __name__ == "__main__":
-    app.debug = True
-    app.run(host='0.0.0.0', port=8000)
+    main(sys.argv[1:])
