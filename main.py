@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import sys
 import json
 import argparse
@@ -22,6 +24,10 @@ class Cacher:
         self.resolution = resolution
         self.active = False
         self.thread = None
+
+        self.int_ip = None
+        self.ext_ip = None
+        self.country = 'Dunno Yet'
 
     def start(self):
         app.logger.info('Cacher started')
@@ -75,12 +81,9 @@ def humansize(nbytes):
 
 
 def get_uptime():
-    pretty_ut = subprocess.Popen(['uptime', '-p'], 
+    uptime = subprocess.Popen(['uptime'], 
             stdout=subprocess.PIPE, shell=True).stdout.read().decode('utf-8')
-    loads = subprocess.Popen(['uptime'], 
-            stdout=subprocess.PIPE, shell=True).stdout.read().decode('utf-8').split()[-3:]
-    loads = ' '.join(loads)
-    return pretty_ut, loads
+    return uptime
 
 
 def parse_processes():
@@ -125,6 +128,20 @@ def parse_processes():
 
     return ps
 
+def filesystem_usage():
+    import pdb; pdb.set_trace()
+    df = subprocess.Popen(['df', '/'], stdout=subprocess.PIPE)
+    output = df.stdout.read().decode('utf-8')
+    output = output.split("\n")[1].split()
+    size, used, available, percent, mountpoint = [int(x) for x in
+    output[1:-2]] + output[-2:]
+
+    Usage = namedtuple('Usage', ['used', 'available', 'percent'])
+    usage = Usage('{:.1f}'.format(used/10e5), 
+                  '{:.1f}'.format((used + available)/10e5), 
+                  '{:.1f}'.format(100*used/(used + available)))
+    return usage
+
 
 @app.route('/')
 def root():
@@ -148,7 +165,7 @@ def root():
     swap_memory = list(map(humansize, swap_memory))
     pc_swap_memory = psutil.swap_memory().percent
 
-    uptime, loads = get_uptime()
+    uptime= get_uptime()
 
     response = make_response(render_template('home.html',
         box_name=box_name,
@@ -165,7 +182,7 @@ def root():
         swap_memory=swap_memory,
         percent_swap_memory=pc_swap_memory,
         uptime=uptime,
-        loads=loads,
+        fs=filesystem_usage(),
     ))
     return response
 
@@ -183,7 +200,7 @@ def get_processes():
 
 def main(argv):
     parser = argparse.ArgumentParser()
-    parser.add_argument('-p', '--port', dest='port', default=8000,
+    parser.add_argument('-p', '--port', dest='port', default=8000, type=int,
             help='The port to serve the website on')
     parser.add_argument('-d', '--debug', dest='debug', action='store_true',
             help='Start the website in debug mode')
@@ -201,6 +218,15 @@ def main(argv):
     app.run(host='0.0.0.0', port=port)
     cache.stop()
 
+
+# This is so gunicorn starts the cacher with the application
+def on_starting(server):
+    cache.start()
+
+def on_exit(server):
+    cache.stop()
+
+cache = Cacher()
 
 if __name__ == "__main__":
     main(sys.argv[1:])
