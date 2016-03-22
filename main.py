@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 import sys
 import json
 import argparse
@@ -13,9 +12,13 @@ from threading import Thread
 import time
 
 from flask import Flask, render_template, request, make_response
+from flask.ext.script import Manager
+from flask.ext.bootstrap import Bootstrap
 import psutil
 
 app = Flask(__name__)
+manager = Manager(app)
+bootstrap = Bootstrap(app)
 
 
 class Cacher:
@@ -129,7 +132,6 @@ def parse_processes():
     return ps
 
 def filesystem_usage():
-    import pdb; pdb.set_trace()
     df = subprocess.Popen(['df', '/'], stdout=subprocess.PIPE)
     output = df.stdout.read().decode('utf-8')
     output = output.split("\n")[1].split()
@@ -144,7 +146,7 @@ def filesystem_usage():
 
 
 @app.route('/')
-def root():
+def homepage():
     box_name = platform.node()
     release = platform.release()
     system = platform.system()
@@ -188,7 +190,7 @@ def root():
 
 
 @app.route('/processes')
-def get_processes():
+def processes():
     ps = parse_processes()
 
     response = make_response(render_template('processes.html',
@@ -198,35 +200,9 @@ def get_processes():
     return response
 
 
-def main(argv):
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-p', '--port', dest='port', default=8000, type=int,
-            help='The port to serve the website on')
-    parser.add_argument('-d', '--debug', dest='debug', action='store_true',
-            help='Start the website in debug mode')
-    args = parser.parse_args(argv)
-
-    port = args.port
-
-    if args.debug:
-        app.debug = True
-
-    global cache
-    cache = Cacher()
-
-    cache.start()
-    app.run(host='0.0.0.0', port=port)
-    cache.stop()
-
-
-# This is so gunicorn starts the cacher with the application
-def on_starting(server):
-    cache.start()
-
-def on_exit(server):
-    cache.stop()
-
 cache = Cacher()
+cache.start()
+
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    manager.run()

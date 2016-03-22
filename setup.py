@@ -8,7 +8,10 @@ setup(name='status',
       packages=find_packages(exclude=['docs', 'scripts']),
       install_requires=[
           'flask',
+          'flask-bootstrap',
+          'flask-script',
           'psutil',
+          'tornado',
       ],
       license='MIT',
      )
