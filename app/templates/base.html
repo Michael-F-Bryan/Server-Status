@@ -1,8 +1,8 @@
 {% extends "bootstrap/base.html" %}
 
 {% set navigation_bar = [
-(url_for("homepage"), 'home', 'Home'),
-(url_for("processes"), 'processes', 'Processes'),
+(url_for("main.homepage"), 'home', 'Home'),
+(url_for("auth.register"), 'register', 'Registration'),
 ] 
 %}
 
@@ -32,12 +32,20 @@ Status Page
       <a class="navbar-brand" href="/">Status Page</a>
     </div>
     <div class="navbar-collapse collapse">
-      <ul class="nav navbar-nav navbar-right">
+      <ul class="nav navbar-nav">
         {% for href, id, caption in navigation_bar %}
         <li{% if id == active_page %} class="active"{% endif %}>
           <a href="{{ href|e }}">{{ caption|e }}</a>
         </li>
         {% endfor %}
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+          {% if current_user.is_authenticated %}
+          <li><a href="{{ url_for('auth.logout') }}">Sign Out ({{ current_user.username }})
+              </a></li>
+          {% else %}
+          <li><a href="{{ url_for('auth.login') }}">Sign In</a></li>
+          {% endif %}
       </ul>
     </div>
   </div> 
