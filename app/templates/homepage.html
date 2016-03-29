@@ -1,2 +1,16 @@
 {% extends 'base.html' %}
+{% set active_page = "home" %}
+
+{% block title %}
+Status Page - Home
+{% endblock %}
+
+{% block page_content %}
+    {% if current_user.is_authenticated %}
+    <h1>Welcome to the Status Page website</h1>
+    {% else %}
+    <h1>Please <a href="{{ url_for('auth.login') }}">login</a> to continue.</h1>
+    {% endif %}
+{% endblock %}
+
 

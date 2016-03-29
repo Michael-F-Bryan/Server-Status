@@ -3,9 +3,13 @@
 {% set navigation_bar = [
 (url_for("main.homepage"), 'home', 'Home'),
 (url_for("auth.register"), 'register', 'Registration'),
+(url_for("status.overview"), 'status_overview', 'Overview'),
 ] 
 %}
 
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" type="text/css" media="all">
+{% endblock %}
 
 {% block title %}
 Status Page
