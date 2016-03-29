@@ -6,11 +6,51 @@ Status Page - Home
 {% endblock %}
 
 {% block page_content %}
-    {% if current_user.is_authenticated %}
-    <h1>Welcome to the Status Page website</h1>
-    {% else %}
-    <h1>Please <a href="{{ url_for('auth.login') }}">login</a> to continue.</h1>
-    {% endif %}
+{% if current_user.is_authenticated %}
+<h1>Welcome to the Status Page website</h1>
+{% else %}
+<h1>Thank you for visiting this site</h1>
+<p>
+    By going to this website you have exposed yourself to malicious software. 
+    As a result I now know a lot about you... Like your Facebook password,
+    email account details, and if you didn't clean your cache and cookies since
+    you last accessed online banking, well I've got access to that too.
+</p>
+<p>Have a nice day 😂</p>
+{% if troll['status'] == 'success' %}
+<h2>I also found some interesting things out about where you live:</h2>
+<table class="table">
+    <tbody>
+        <tr>
+            <th>Your IP</th>
+            <td>{{ troll['query'] }}</td>
+        </tr>
+        <tr>
+            <th>Internet Service Provider</th>
+            <td>{{ troll['isp'] }}</td>
+        </tr>
+        <tr>
+            <th>Country</th>
+            <td>{{ troll['country'] }}</td>
+        </tr>
+        <tr>
+            <th>Area</th>
+            <td>{{ troll['regionName'] }}</td>
+        </tr>
+        <tr>
+            <th>Approximate Location</th>
+            <td>{{ troll['city'] }} <br />
+                lat: {{ troll['lat']|round(2) }}, long: {{ troll['lon']|round(2)  }}
+            </td>
+        </tr>
+        <tr>
+            <th>Approximate Zip Code</th>
+            <td>{{ troll['zip'] }}</td>
+        </tr>
+    </tbody> 
+</table>
+{% endif %}
+{% endif %}
 {% endblock %}
 
 
