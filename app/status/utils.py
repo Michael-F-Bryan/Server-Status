@@ -4,7 +4,7 @@ import subprocess
 import datetime
 import platform
 from urllib.request import urlopen
-import socket
+import socket 
 from collections import namedtuple
 import time
 import psutil
@@ -93,3 +93,68 @@ def external_ip():
     df = subprocess.Popen([cmd], stdout=subprocess.PIPE, shell=True)
     output = df.stdout.read().decode('utf-8').strip()
     return output
+
+
+def parse_processes():
+    Process = namedtuple('Process', [
+        'pid', 
+        'user', 
+        'number_of_threads',
+        'percent_cpu', 
+        'percent_memory', 
+        'start',
+        'name',
+        'command', 
+        ]
+    )
+    processes = psutil.process_iter()
+
+    ps = []
+    for process in processes:
+        if process.username() == 'root':
+            continue
+
+        create_time = datetime.datetime.fromtimestamp(process.create_time()).strftime(
+                "%Y-%m-%d %H:%M:%S")
+
+        cmd = ' '.join(process.cmdline())
+        cmd = cmd if len(cmd) < 60 else process.cmdline()[0]
+
+        new_ps = Process(
+                pid=process.pid,
+                user=process.username(),
+                command=cmd,
+                number_of_threads=process.num_threads(),
+                percent_cpu=process.cpu_percent(),
+                percent_memory=str(round(process.memory_percent(), 2))+'%',
+                start=create_time,
+                name=process.name(),
+        )
+        ps.append(new_ps)
+
+    # Sort by % memory usage, descending order
+    ps.sort(key=lambda x: x.percent_memory, reverse=True)
+
+    return ps
+
+
+def get_who():
+    Who = namedtuple('Who', ['user', 'tty', 'from_', 'login', 'idle', 'what'])
+    cmd = ['w', '-i']
+
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    output = proc.stdout.read().decode('utf-8').strip()
+    output = [line.split(maxsplit=8) for line in output.split('\n')[1:]]
+
+    who_list = []
+    for line in output:
+        temp = Who(
+                user=line[0],
+                tty=line[1],
+                from_=line[2],
+                login=line[3],
+                idle=line[4],
+                what=line[-1])
+        who_list.append(temp)
+
+    return who_list

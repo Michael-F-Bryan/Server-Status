@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% set active_page = "who" %}
+
+{% block page_content %}
+<h1>Who</h1>
+<table class="table">
+  <thead>
+    <tr>
+      <th>
+        User
+      </th>
+      <th>
+        TTY
+      </th>
+      <th>
+        From
+      </th>
+      <th>
+        Login Time
+      </th>
+      <th>
+        Current Command
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for line in w[1:] %}
+    <tr>
+      <td>
+        {{ line.user }}
+      </td>
+      <td>
+        {{ line.tty }}
+      </td>
+      <td>
+        {{ line.from_ }}
+      </td>
+      <td>
+        {{ line.login }}
+      </td>
+      <td>
+        {{ line.what }}
+      </td>
+    </tr>
+    {% endfor %}
+
+{% endblock %}
