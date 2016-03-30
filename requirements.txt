@@ -1,0 +1,27 @@
+alembic==0.8.5
+beautifulsoup4==4.4.1
+blinker==1.4
+bs4==0.0.1
+dominate==2.2.0
+Flask==0.10.1
+Flask-Bootstrap==3.3.5.7
+Flask-Login==0.3.2
+Flask-Mail==0.9.1
+Flask-Migrate==1.8.0
+Flask-Moment==0.5.1
+Flask-Script==2.0.5
+Flask-SQLAlchemy==2.1
+Flask-WTF==0.12
+itsdangerous==0.24
+Jinja2==2.8
+Mako==1.0.4
+MarkupSafe==0.23
+psutil==4.1.0
+psycopg2==2.6.1
+python-editor==0.5
+requests==2.9.1
+SQLAlchemy==1.0.12
+-e git+git@github.com:Michael-F-Bryan/Server-Status.git@fa919c572bee0ba4fa3a15144c3380605631e372#egg=status
+visitor==0.1.2
+Werkzeug==0.11.5
+WTForms==2.1
