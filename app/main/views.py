@@ -16,7 +16,6 @@ def homepage():
     if not current_user.is_authenticated:
         ip = request.environ.get('HTTP_X_REAL_IP', request.remote_addr)
         troll = lookup_ip(ip)
-        print(troll)
     else:
         troll = dict(success=False)
 
