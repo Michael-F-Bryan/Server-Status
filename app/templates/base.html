@@ -1,9 +1,12 @@
 {% extends "bootstrap/base.html" %}
 
+{# link_href, id, label_on_navbar, login_required #}
 {% set navigation_bar = [
-(url_for("main.homepage"), 'home', 'Home'),
-(url_for("auth.register"), 'register', 'Registration'),
-(url_for("status.overview"), 'status_overview', 'Overview'),
+(url_for("main.homepage"), 'home', 'Home', False),
+(url_for("auth.register"), 'register', 'Registration', False),
+(url_for("status.overview"), 'status_overview', 'Overview', True),
+(url_for("status.processes"), 'processes', 'Processes', True),
+(url_for("status.who"), 'who', 'Current Users', True),
 ] 
 %}
 
@@ -37,10 +40,12 @@ Status Page
     </div>
     <div class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        {% for href, id, caption in navigation_bar %}
-        <li{% if id == active_page %} class="active"{% endif %}>
-          <a href="{{ href|e }}">{{ caption|e }}</a>
-        </li>
+        {% for href, id, caption, login_required in navigation_bar %}
+            {% if not login_required or login_required and current_user.is_authenticated %}
+                <li{% if id == active_page %} class="active"{% endif %}>
+                <a href="{{ href|e }}">{{ caption|e }}</a>
+                </li>
+            {% endif %}
         {% endfor %}
       </ul>
       <ul class="nav navbar-nav navbar-right">

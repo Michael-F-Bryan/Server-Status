@@ -22,6 +22,7 @@ def homepage():
     return render_template('homepage.html', troll=troll)
 
 
+
 def lookup_ip(ip):
     if ip == '127.0.0.1':
         return dict(success=False)
@@ -33,4 +34,5 @@ def lookup_ip(ip):
 
     r = requests.get(url, headers=headers)
     return r.json()
+
 
