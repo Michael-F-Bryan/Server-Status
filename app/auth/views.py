@@ -32,6 +32,11 @@ def logout():
 
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
+    # Disable registration if necessary
+    if request.method == 'POST' and not current_app.config.get('ALLOW_REGISTRATION'):
+        flash('Registration has been disabled. Try again another time.')
+        return redirect(url_for('main.homepage'))
+
     form = RegistrationForm()
     if form.validate_on_submit():
         user = User(email=form.email.data,
