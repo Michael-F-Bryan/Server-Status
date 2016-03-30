@@ -8,6 +8,10 @@ Status Page - Home
 {% block page_content %}
 {% if current_user.is_authenticated %}
 <h1>Welcome to the Status Page website</h1>
+<p>
+    This is a light-weight web server that you can have running in the 
+    background to let you inspect the status of a remote computer/server.
+</p>
 {% else %}
 <h1>Thank you for visiting this site</h1>
 <p>
