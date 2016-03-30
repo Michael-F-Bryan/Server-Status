@@ -10,6 +10,7 @@ class Config:
     JAKE_MAIL_SENDER = 'CottonBud <cottonbud315@gmail.com>'
     JAKE_ADMIN = os.environ.get('JAKE_ADMIN')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    ALLOW_REGISTRATION = os.environ.get('ALLOW_REGISTRATION') or True
 
     @staticmethod
     def init_app(app):
@@ -42,6 +43,7 @@ class TestingConfig(Config):
 
 class ProductionConfig(Config):
     LOG_FILE = 'Jake_production.log'
+    ALLOW_REGISTRATION = os.environ.get('ALLOW_REGISTRATION') or False
 
     SQLALCHEMY_DATABASE_URI = os.environ.get('PROD_DATABASE_URL') or \
             'sqlite:///' + os.path.join(basedir, 'data.sqlite')
