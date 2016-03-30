@@ -35,6 +35,9 @@ def register():
     # Disable registration if necessary
     if request.method == 'POST' and not current_app.config.get('ALLOW_REGISTRATION'):
         flash('Registration has been disabled. Try again another time.')
+
+        ip = request.environ.get('HTTP_X_REAL_IP', request.remote_addr)
+        current_app.logger.warn('User attempting to register: {}'.format(ip))
         return redirect(url_for('main.homepage'))
 
     form = RegistrationForm()

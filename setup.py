@@ -21,6 +21,7 @@ setup(name='status',
           'bs4',
           'psutil',
           'markdown',
+          'gunicorn',
       ],
       license='MIT',
      )

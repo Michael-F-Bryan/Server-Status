@@ -42,6 +42,6 @@ def list_files(startpath):
         for f in files:
             link = os.path.join(root, f).replace(startpath, '')
             link = url_for('files.get_file', filename=link[1:])
-            tree.append('{}* [{}]({})'.format(subindent, f, link))
+            tree.append('{}* [{}]({})'.format(subindent, f.replace('__', '\_\_'), link))
 
     return '\n'.join(tree)

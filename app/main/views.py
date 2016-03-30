@@ -1,8 +1,8 @@
 from datetime import datetime
 from flask import (render_template, session, redirect, url_for, request, 
         flash, request)
-from flask.ext.login import current_user
-import requests
+from flask.ext.login import current_user 
+import requests 
 from bs4 import BeautifulSoup
 
 from . import main
