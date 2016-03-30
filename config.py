@@ -1,6 +1,6 @@
 import os
 
-basedir = os.path.abspath(os.path.dirname(__file__))
+project_dir = os.path.abspath(os.path.dirname(__file__))
 
 
 class Config:
@@ -11,6 +11,9 @@ class Config:
     JAKE_ADMIN = os.environ.get('JAKE_ADMIN')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     ALLOW_REGISTRATION = os.environ.get('ALLOW_REGISTRATION') or True
+
+    FILE_UPLOAD_FOLDER = (os.environ.get('FILE_UPLOAD_FOLDER') or 
+                          os.path.join(project_dir, 'file_uploads'))
 
     @staticmethod
     def init_app(app):
@@ -26,7 +29,7 @@ class DevelopmentConfig(Config):
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
 
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
-            'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
+            'sqlite:///' + os.path.join(project_dir, 'data-dev.sqlite')
     # POSTGRES_USER = 'postgres'
     # POSTGRES_PASS = os.environ.get('POSTGRES_PASS') or 'password'
     # SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
@@ -38,7 +41,7 @@ class TestingConfig(Config):
     LOG_FILE = 'Jake_testing.log'
     TESTING = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or \
-            'sqlite:///' + os.path.join(basedir, 'data-test.sqlite')
+            'sqlite:///' + os.path.join(project_dir, 'data-test.sqlite')
 
 
 class ProductionConfig(Config):
@@ -46,7 +49,7 @@ class ProductionConfig(Config):
     ALLOW_REGISTRATION = os.environ.get('ALLOW_REGISTRATION') or False
 
     SQLALCHEMY_DATABASE_URI = os.environ.get('PROD_DATABASE_URL') or \
-            'sqlite:///' + os.path.join(basedir, 'data.sqlite')
+            'sqlite:///' + os.path.join(project_dir, 'data.sqlite')
 
     # POSTGRES_USER = 'postgres'
     # POSTGRES_PASS = os.environ.get('POSTGRES_PASS') or 'password'

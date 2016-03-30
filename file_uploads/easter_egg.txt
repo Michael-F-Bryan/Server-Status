@@ -1,0 +1,3 @@
+This is just a file to make sure git includes this directory.
+
+Feel free to add your own Easter Eggs, puns, jokes, etc.

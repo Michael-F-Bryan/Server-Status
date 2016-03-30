@@ -28,11 +28,12 @@ def create_app(config_name):
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
 
-    # Attach routes and custom error pages
     from .status import status as status_blueprint
     app.register_blueprint(status_blueprint, url_prefix='/status')
 
-    # Attach routes and custom error pages
+    from .files import files as files_blueprint
+    app.register_blueprint(files_blueprint, url_prefix='/files')
+
     from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
 

@@ -20,6 +20,7 @@ setup(name='status',
           'requests',
           'bs4',
           'psutil',
+          'markdown',
       ],
       license='MIT',
      )
